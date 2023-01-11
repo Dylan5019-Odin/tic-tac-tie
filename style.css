@@ -1,0 +1,19 @@
+
+/* CSS for the Body*/
+body {
+    display: grid;
+    place-content: center;
+}
+
+/* CSS For the GameBoard Container */
+.game-container {
+    display: grid;
+    grid-template-columns: repeat(3, 150px);
+    grid-template-rows: repeat(3, 150px);
+}
+
+.game-container div{
+  background: lightgray;
+  border: 1px solid black;
+
+}
