@@ -12,8 +12,10 @@ body {
     grid-template-rows: repeat(3, 150px);
 }
 
-.game-container div{
+.game-container .cell{
+  display: grid;
+  place-content: center;
   background: lightgray;
   border: 1px solid black;
-
+  font-size: 3rem;
 }
