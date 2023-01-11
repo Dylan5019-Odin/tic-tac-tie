@@ -1,14 +1,23 @@
+// FACTORIES
+
+// Using a Factory to setup the Players
+const playerFactory = (name, value) => {
+  return { name, value };
+};
+
+// MODULES
+
 // Using a Module to setup the Game Board
 const gameBoard = (() => {
   const board = [
-    ["O", "X", "X"],
-    ["O", "X", "O"],
-    ["X", "O", "X"],
+    ["", "", ""],
+    ["", "", ""],
+    ["", "", ""],
   ];
 
   const updateBoard = (i, j, newValue) => {
-    [board[i][j] = newValue];
-  }
+    board[i][j] = newValue;
+  };
 
   return {
     board,
@@ -16,32 +25,18 @@ const gameBoard = (() => {
   };
 })();
 
-
-// Using a Factory to setup the Players
-const playerFactory = (name, symb) => {
-  return { name, symb };
-};
-
 // Using a Module to setup the display Controller
-const displayController = (() => {
+const gameController = (() => {
+  let currentCell = [];
 
-const getCurrentCellEvent = () => {
-    let currentCell = [];
-    document.querySelectorAll(".cell").forEach(cell => {
-     cell.addEventListener("click", () => {
-        currentCell = cell.id.split("_");
-        currentCell.shift();       
-     });
+  let player1 = playerFactory("Player 1", "X");
+  let player2 = playerFactory("Player 2", "O");
+  let currentPlayer = player2;
 
-     return currentCell;
-  });
- 
-}
-
-// Generates the Grid Based off the gameBoard
+  // Generates the Grid Based off the gameBoard
   const generateGrid = () => {
     let gameContainer = document.getElementById("gameContainer");
-    gameContainer.innerHTML = '';
+    gameContainer.innerHTML = "";
 
     for (let i = 0; i < 3; i++) {
       for (let j = 0; j < 3; j++) {
@@ -54,9 +49,44 @@ const getCurrentCellEvent = () => {
     }
   };
 
+  // Function to Add an Event Listener that updates a cells text based on the
+  // current players value
+  const addCellEventListener = () => {
+    document.querySelectorAll(".cell").forEach((cell) => {
+      cell.addEventListener("click", () => {
+        currentCell = cell.id.split("_");
+        currentCell.shift();
+
+        if (gameBoard.board[currentCell[0]][currentCell[1]] == "") {
+          gameBoard.updateBoard(
+            currentCell[0],
+            currentCell[1],
+            currentPlayer.value
+          );
+
+          displayBoard();
+        }
+      });
+    });
+  };
+
+  //Function to switch the current player
+  const updatePlayer = () => {
+    const currentPlayerDisplay = document.getElementById("currentPlayer");
+
+    if (currentPlayer.name == player1.name) {
+      currentPlayer = player2;
+    } else {
+      currentPlayer = player1;
+    }
+
+    currentPlayerDisplay.innerText = currentPlayer.name;
+  };
+
   const displayBoard = () => {
     generateGrid();
-    getCurrentCellEvent();
+    addCellEventListener();
+    updatePlayer();
   };
 
   return {
@@ -64,9 +94,6 @@ const getCurrentCellEvent = () => {
   };
 })();
 
-const player1 = playerFactory(`Player1`, `X`);
-const player2 = playerFactory(`Player2`, `O`);
+//GLOBAL
 
-displayController.displayBoard();
-
-
+gameController.displayBoard();
