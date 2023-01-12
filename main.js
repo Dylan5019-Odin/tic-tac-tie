@@ -15,19 +15,46 @@ const gameBoard = (() => {
     ["", "", ""],
   ];
 
+  const winningCombos = [
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
+  ];
+
   const updateBoard = (i, j, newValue) => {
     board[i][j] = newValue;
+  };
+
+  const checkForWinner = (cells) => {
+    for (let comb of winningCombos) {
+      if (
+        cells[comb[0]].textContent == cells[comb[1]].textContent &&
+        cells[comb[1]].textContent == cells[comb[2]].textContent &&
+        cells[comb[0]].textContent != ""
+      ) {
+        return true;
+      }
+    }
+
+    return false;
   };
 
   return {
     board,
     updateBoard,
+    checkForWinner,
   };
 })();
 
 // Using a Module to setup the display Controller
 const gameController = (() => {
   let currentCell = [];
+  let isWinner = false;
 
   let player1 = playerFactory("Player 1", "X");
   let player2 = playerFactory("Player 2", "O");
@@ -49,10 +76,20 @@ const gameController = (() => {
     }
   };
 
-  // Function to Add an Event Listener that updates a cells text based on the
-  // current players value
-  const addCellEventListener = () => {
-    document.querySelectorAll(".cell").forEach((cell) => {
+  // Function that Adds an event Listener and controls the main gameplay loop
+  const playGame = () => {
+    let cells = document.querySelectorAll(".cell");
+    isWinner = gameBoard.checkForWinner(cells);
+    let turn = 0;
+
+    if (isWinner) {
+      alert(`${currentPlayer.name} Wins!`);
+      return;
+    } else if (turn == 9) {
+      return;
+    }
+
+    cells.forEach((cell) => {
       cell.addEventListener("click", () => {
         currentCell = cell.id.split("_");
         currentCell.shift();
@@ -63,7 +100,7 @@ const gameController = (() => {
             currentCell[1],
             currentPlayer.value
           );
-
+          turn++;
           displayBoard();
         }
       });
@@ -79,13 +116,13 @@ const gameController = (() => {
     } else {
       currentPlayer = player1;
     }
-
     currentPlayerDisplay.innerText = currentPlayer.name;
   };
 
   const displayBoard = () => {
+   
     generateGrid();
-    addCellEventListener();
+    playGame();
     updatePlayer();
   };
 
