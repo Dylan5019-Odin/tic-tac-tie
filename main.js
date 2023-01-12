@@ -144,5 +144,6 @@ const gameController = (() => {
 })();
 
 //GLOBAL
+
 // Starts the game
 gameController.updateBoard();
