@@ -30,6 +30,7 @@ const gameBoard = (() => {
     board[i][j] = newValue;
   };
 
+  // Function that checks the board to see if there is a winner
   const checkForWinner = (cells) => {
     for (let comb of winningCombos) {
       if (
@@ -40,7 +41,6 @@ const gameBoard = (() => {
         return true;
       }
     }
-
     return false;
   };
 
@@ -52,14 +52,7 @@ const gameBoard = (() => {
 })();
 
 // Using a Module to setup the display Controller
-const gameController = (() => {
-  let currentCell = [];
-  let isWinner = false;
-
-  let player1 = playerFactory("Player 1", "X");
-  let player2 = playerFactory("Player 2", "O");
-  let currentPlayer = player2;
-
+const displayController = (() => {
   // Generates the Grid Based off the gameBoard
   const generateGrid = () => {
     let gameContainer = document.getElementById("gameContainer");
@@ -75,39 +68,59 @@ const gameController = (() => {
       }
     }
   };
+  return {
+    generateGrid,
+  };
+})();
 
-  // Function that Adds an event Listener and controls the main gameplay loop
+// Using a Module to setup the Game Controller
+const gameController = (() => {
+  let player1 = playerFactory("Player 1", "X");
+  let player2 = playerFactory("Player 2", "O");
+  let currentPlayer = player2;
+  let turn = 0;
+
+  // Function that controls the gameplay loop and checks for a winner
   const playGame = () => {
     let cells = document.querySelectorAll(".cell");
-    isWinner = gameBoard.checkForWinner(cells);
-    let turn = 0;
+    let isWinner = gameBoard.checkForWinner(cells);
 
     if (isWinner) {
       alert(`${currentPlayer.name} Wins!`);
       return;
-    } else if (turn == 9) {
-      return;
-    }
+    } else addCellEventListener(cells);
+  };
+
+  //Function to add the onClick event listener to each cell
+  const addCellEventListener = (cells) => {
+    let currentCell = [];
 
     cells.forEach((cell) => {
       cell.addEventListener("click", () => {
+        turn += 1;
         currentCell = cell.id.split("_");
         currentCell.shift();
 
+        // Checks if the cell being clicked already has a value
         if (gameBoard.board[currentCell[0]][currentCell[1]] == "") {
           gameBoard.updateBoard(
             currentCell[0],
             currentCell[1],
             currentPlayer.value
           );
-          turn++;
-          displayBoard();
+
+          //Checks if the game ended in a draw
+          if (turn == 9) {
+            alert(`DRAW!`);
+            return;
+          }
+          updateBoard();
         }
       });
     });
   };
 
-  //Function to switch the current player
+  //Function to switch the current player and updated the display text
   const updatePlayer = () => {
     const currentPlayerDisplay = document.getElementById("currentPlayer");
 
@@ -119,18 +132,17 @@ const gameController = (() => {
     currentPlayerDisplay.innerText = currentPlayer.name;
   };
 
-  const displayBoard = () => {
-   
-    generateGrid();
+  const updateBoard = () => {
+    displayController.generateGrid();
     playGame();
     updatePlayer();
   };
 
   return {
-    displayBoard,
+    updateBoard,
   };
 })();
 
 //GLOBAL
-
-gameController.displayBoard();
+// Starts the game
+gameController.updateBoard();
